@@ -1,0 +1,18 @@
+flowchart TD
+
+    A[Raw Patient Data<br/>Neera Hospital (Primary Clinical Data)] --> B[Preprocessing<br/>Missing Value Removal<br/>Encoding]
+
+    B --> C[Train/Test Split]
+
+    C --> D[Model Training<br/>LR, DT, KNN, RF, XGB, GBC, CatBoost, AdaBoost]
+
+    D --> E[Model Evaluation<br/>Accuracy, Precision, Recall]
+
+    E --> F[Symptom & Feature Analysis<br/>Regression Coefficients<br/>Feature Importances]
+
+    F --> G[Insights & Conclusions<br/>Support Earlier Diagnosis]
+
+
+
+
+
