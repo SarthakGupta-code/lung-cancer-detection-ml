@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Early Lung Cancer Detection using ML | Sarthak Gupta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0f14;
+            --bg-card: #111920;
+            --accent: #00d4aa;
+            --accent-dim: #00a080;
+            --text-primary: #e8f0f0;
+            --text-secondary: #8a9ba8;
+            --text-muted: #5a6a78;
+            --border: #1e2a35;
+            --warning: #ff6b6b;
+            --success: #00d4aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(0, 160, 128, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .meta-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .meta-value a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .meta-value a:hover {
+            border-color: var(--accent);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Origin Story Section */
+        .origin-section {
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            border-top: 1px solid var(--border);
+        }
+
+        .origin-content {
+            max-width: 700px;
+        }
+
+        .origin-quote {
+            position: relative;
+        }
+
+        .quote-icon {
+            color: var(--accent);
+            opacity: 0.3;
+            margin-bottom: 1.5rem;
+        }
+
+        .origin-quote blockquote {
+            font-size: 1.35rem;
+            font-style: italic;
+            color: var(--text-primary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .origin-reflection {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            padding-left: 1.5rem;
+        }
+
+        /* Stats Grid */
+        .stats-section {
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+        }
+
+        .stat-card {
+            background: var(--bg-dark);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number.warning {
+            color: var(--warning);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Problem Section */
+        .section {
+            padding: 5rem 2rem;
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            max-width: 700px;
+        }
+
+        .section-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+
+        /* Approach Grid */
+        .approach-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .approach-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            position: relative;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .approach-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-dim);
+        }
+
+        .approach-number {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--border);
+            line-height: 1;
+        }
+
+        .approach-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .approach-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Features List */
+        .features-section {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+        }
+
+        .features-content {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .features-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            margin-top: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-text strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Risk Factors */
+        .risk-factors {
+            background: var(--bg-dark);
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .risk-title {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .risk-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .risk-bar-container {
+            flex: 1;
+            height: 24px;
+            background: var(--bg-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .risk-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+            transition: width 1s ease-out;
+        }
+
+        .risk-label {
+            width: 180px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .risk-value {
+            width: 50px;
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Results Section */
+        .results-section {
+            border-top: 1px solid var(--border);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2rem;
+        }
+
+        .result-card.highlight {
+            border-color: var(--accent);
+            position: relative;
+        }
+
+        .result-card.highlight::before {
+            content: 'BEST PERFORMER';
+            position: absolute;
+            top: -0.75rem;
+            left: 1.5rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--accent);
+            color: var(--bg-dark);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+        }
+
+        .model-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .metrics {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Code Block */
+        .code-section {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+        }
+
+        .code-block {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .code-block .comment {
+            color: var(--text-muted);
+        }
+
+        .code-block .keyword {
+            color: var(--accent);
+        }
+
+        .code-block .string {
+            color: #ffd93d;
+        }
+
+        .code-block .number {
+            color: #ff6b6b;
+        }
+
+        /* Why This Matters Section */
+        .why-matters-section {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+        }
+
+        .why-matters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .why-matters-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .why-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .why-matters-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--accent);
+        }
+
+        .why-matters-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        .btn.primary:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent-dim);
+            color: var(--bg-dark);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge mono">Published in Journal of Student Research • 2024</div>
+            <h1>Early Detection of <span>Lung Cancer</span> using Machine Learning</h1>
+            <p class="subtitle">A novel study built on primary data—not downloaded, collected. Most Indian ML research uses Western datasets. This one was built from the ground up at a hospital in Lucknow, India.</p>
+            
+            <div class="hero-meta mono">
+                <div class="meta-item">
+                    <span class="meta-label">Author</span>
+                    <span class="meta-value">Sarthak Gupta</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Institution</span>
+                    <span class="meta-value">Delhi Public School, Gurgaon</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Data Source</span>
+                    <span class="meta-value">Neera Hospital, Lucknow</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Paper</span>
+                    <span class="meta-value"><a href="https://www.jsr.org/index.php/path/article/view/2383" target="_blank">View on JSR →</a></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number warning">5%</div>
+                    <div class="stat-label mono">5-year survival rate in India</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number warning">&lt;16%</div>
+                    <div class="stat-label mono">Cases detected early globally</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">2,512</div>
+                    <div class="stat-label mono">Patient records analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">97.2%</div>
+                    <div class="stat-label mono">Best model accuracy</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Origin Story -->
+    <section class="section origin-section fade-in">
+        <div class="container">
+            <div class="origin-content">
+                <div class="origin-quote">
+                    <svg class="quote-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"></path>
+                        <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path>
+                    </svg>
+                    <blockquote>
+                        When my grandmother got cancer in India and we took her to the hospital for treatment, I realized how lucky we were to afford care, even if it was barely manageable. At the same time, I saw how many people simply couldn't get help.
+                    </blockquote>
+                    <p class="origin-reflection">That moment sparked a question: what if cancer could be detected early, before treatment becomes so difficult? What if a simple set of symptoms—recorded during a routine intake—could flag risk before it's too late?</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem -->
+    <section class="section fade-in">
+        <div class="container">
+            <div class="section-label mono">The Problem</div>
+            <h2 class="section-title">India lacks ground-level lung cancer data—most ML research uses Western datasets</h2>
+            <p class="section-text">In India, lung cancer is diagnosed at advanced stages in the vast majority of cases. The 5-year survival rate sits at just 5%—among the lowest globally. But here's the deeper problem: most machine learning studies on lung cancer detection use datasets from Western populations. Indian patients, with different demographic patterns, environmental exposures, and healthcare access realities, are underrepresented in the very research meant to help them.</p>
+            <p class="section-text">This study takes a different approach: <strong>primary data collection from an Indian hospital</strong>, building a model trained on patients it's meant to serve.</p>
+        </div>
+    </section>
+
+    <!-- Approach -->
+    <section class="section fade-in" style="background: var(--bg-card); border-top: 1px solid var(--border);">
+        <div class="container">
+            <div class="section-label mono">The Approach</div>
+            <h2 class="section-title">Ground-level fieldwork, not downloaded datasets</h2>
+            
+            <div class="approach-grid">
+                <div class="approach-card">
+                    <div class="approach-number mono">01</div>
+                    <h3>Primary Data Collection</h3>
+                    <p>Collected comprehensive symptom data from 2,512 patients at Neera Hospital, Lucknow—original fieldwork in a real clinical setting, not a pre-existing Kaggle dataset.</p>
+                </div>
+                <div class="approach-card">
+                    <div class="approach-number mono">02</div>
+                    <h3>India-Specific Features</h3>
+                    <p>16 clinical attributes capturing patterns specific to Indian patients: smoking habits, family exposure to secondhand smoke, occupational hazards, pollution levels, and symptom presentations.</p>
+                </div>
+                <div class="approach-card">
+                    <div class="approach-number mono">03</div>
+                    <h3>Rigorous Model Comparison</h3>
+                    <p>Systematic evaluation of 8 ML algorithms—Logistic Regression, Decision Trees, KNN, Random Forest, XGBoost, Gradient Boosting, CatBoost, and AdaBoost—to find the optimal approach.</p>
+                </div>
+                <div class="approach-card">
+                    <div class="approach-number mono">04</div>
+                    <h3>Clinical Integration</h3>
+                    <p>Risk-scoring model integrated into nurse intake workflow at Neera Hospital's cancer wing—generating risk assessments during routine pre-examination checks.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features / Risk Factors -->
+    <section class="section features-section fade-in">
+        <div class="container">
+            <div class="features-content">
+                <div>
+                    <div class="section-label mono">Key Findings</div>
+                    <h2 class="section-title">What this India-specific data revealed</h2>
+                    <ul class="features-list">
+                        <li>
+                            <div class="feature-icon"></div>
+                            <div class="feature-text"><strong>Secondhand smoke exposure</strong> increases risk 1.7× even in non-smokers—critical in Indian households where family smoking is common</div>
+                        </li>
+                        <li>
+                            <div class="feature-icon"></div>
+                            <div class="feature-text"><strong>Family history of cancer</strong> correlates with 80% higher probability—genetic factors underexplored in Indian populations</div>
+                        </li>
+                        <li>
+                            <div class="feature-icon"></div>
+                            <div class="feature-text"><strong>Ensemble methods</strong> significantly outperformed single classifiers on this dataset</div>
+                        </li>
+                        <li>
+                            <div class="feature-icon"></div>
+                            <div class="feature-text"><strong>Novel contribution:</strong> One of few recent ML studies using primary Indian patient data for lung cancer detection</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="risk-factors">
+                    <div class="risk-title mono">Top Risk Factors by Regression Coefficient</div>
+                    
+                    <div class="risk-item">
+                        <span class="risk-label mono">Coughing Blood</span>
+                        <div class="risk-bar-container">
+                            <div class="risk-bar" style="width: 100%;"></div>
+                        </div>
+                        <span class="risk-value mono">1.78</span>
+                    </div>
+                    
+                    <div class="risk-item">
+                        <span class="risk-label mono">Family Smokers</span>
+                        <div class="risk-bar-container">
+                            <div class="risk-bar" style="width: 96%;"></div>
+                        </div>
+                        <span class="risk-value mono">1.71</span>
+                    </div>
+                    
+                    <div class="risk-item">
+                        <span class="risk-label mono">Persistent Cough</span>
+                        <div class="risk-bar-container">
+                            <div class="risk-bar" style="width: 81%;"></div>
+                        </div>
+                        <span class="risk-value mono">1.44</span>
+                    </div>
+                    
+                    <div class="risk-item">
+                        <span class="risk-label mono">Family Cancer History</span>
+                        <div class="risk-bar-container">
+                            <div class="risk-bar" style="width: 48%;"></div>
+                        </div>
+                        <span class="risk-value mono">0.86</span>
+                    </div>
+                    
+                    <div class="risk-item">
+                        <span class="risk-label mono">Dyspnea</span>
+                        <div class="risk-bar-container">
+                            <div class="risk-bar" style="width: 39%;"></div>
+                        </div>
+                        <span class="risk-value mono">0.69</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results -->
+    <section class="section results-section fade-in">
+        <div class="container">
+            <div class="section-label mono">Results</div>
+            <h2 class="section-title">Model Performance on Indian Patient Data</h2>
+            <p class="section-text">Ensemble methods consistently outperformed traditional classifiers on this primary dataset. CatBoost achieved the highest accuracy while maintaining strong precision and recall—validating that India-specific training data produces reliable results for Indian patients.</p>
+            
+            <div class="results-grid">
+                <div class="result-card highlight">
+                    <div class="model-name">CatBoost</div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="metric-value">97.2%</span>
+                            <span class="metric-label mono">Accuracy</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">96.9%</span>
+                            <span class="metric-label mono">Precision</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">95.4%</span>
+                            <span class="metric-label mono">Recall</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="model-name">Gradient Boosting</div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="metric-value">96.1%</span>
+                            <span class="metric-label mono">Accuracy</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">98.4%</span>
+                            <span class="metric-label mono">Precision</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">90.9%</span>
+                            <span class="metric-label mono">Recall</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="model-name">AdaBoost</div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="metric-value">95.5%</span>
+                            <span class="metric-label mono">Accuracy</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">93.9%</span>
+                            <span class="metric-label mono">Precision</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">93.9%</span>
+                            <span class="metric-label mono">Recall</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="model-name">Random Forest</div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="metric-value">93.9%</span>
+                            <span class="metric-label mono">Accuracy</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">93.7%</span>
+                            <span class="metric-label mono">Precision</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">89.4%</span>
+                            <span class="metric-label mono">Recall</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Sample -->
+    <section class="section code-section fade-in">
+        <div class="container">
+            <div class="section-label mono">Implementation</div>
+            <h2 class="section-title">Core Model Pipeline</h2>
+            
+            <div class="code-block">
+                <pre><code><span class="comment"># Feature preprocessing with mixed encoding strategies</span>
+<span class="keyword">from</span> catboost <span class="keyword">import</span> CatBoostClassifier
+<span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split
+
+<span class="comment"># Label encoding for ordinal features (severity scales)</span>
+ordinal_features = [<span class="string">'Dyspnea'</span>, <span class="string">'Chest_Pain'</span>, <span class="string">'Weight_Loss'</span>, <span class="string">'Pollution_Level'</span>]
+
+<span class="comment"># One-hot encoding for categorical features</span>
+categorical_features = [<span class="string">'Gender'</span>, <span class="string">'Smoking'</span>, <span class="string">'Family_History'</span>, <span class="string">'Coughing_Blood'</span>]
+
+<span class="comment"># Train CatBoost classifier</span>
+model = CatBoostClassifier(
+    iterations=<span class="number">1000</span>,
+    learning_rate=<span class="number">0.1</span>,
+    depth=<span class="number">6</span>,
+    loss_function=<span class="string">'Logloss'</span>,
+    verbose=<span class="number">False</span>
+)
+
+model.fit(X_train, y_train, cat_features=categorical_indices)
+<span class="comment"># Accuracy: 97.2% | Precision: 96.9% | Recall: 95.4%</span></code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why This Matters -->
+    <section class="section why-matters-section fade-in">
+        <div class="container">
+            <div class="why-matters-grid">
+                <div class="why-matters-card">
+                    <div class="why-icon">📊</div>
+                    <h3>Not Downloaded—Collected</h3>
+                    <p>Most student ML projects use pre-existing datasets from Kaggle or UCI. This study involved actual fieldwork at a hospital in Uttar Pradesh, collecting primary data from real patients.</p>
+                </div>
+                <div class="why-matters-card">
+                    <div class="why-icon">🇮🇳</div>
+                    <h3>Built for India</h3>
+                    <p>Western datasets don't capture Indian demographic patterns, environmental factors, or healthcare realities. This model was trained on the population it's meant to serve.</p>
+                </div>
+                <div class="why-matters-card">
+                    <div class="why-icon">🏥</div>
+                    <h3>Clinically Integrated</h3>
+                    <p>Not just a research exercise—the model is part of pre-screening workflow at Neera Hospital's cancer wing, generating risk scores during routine nurse intake.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section cta-section fade-in">
+        <div class="container">
+            <div class="section-label mono">Explore Further</div>
+            <h2 class="section-title">Read the full paper or view the code</h2>
+            
+            <div class="cta-buttons">
+                <a href="https://www.jsr.org/index.php/path/article/view/2383" target="_blank" class="btn primary mono">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    Read Paper on JSR
+                </a>
+                <a href="https://github.com/SarthakGupta-code/lung-cancer-detection-ml" target="_blank" class="btn mono">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="mono">© 2024 Sarthak Gupta · <a href="mailto:sarthakg0408@gmail.com">sarthakg0408@gmail.com</a> · <a href="https://sarthakmosaic.com" target="_blank">sarthakmosaic.com</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // Animate risk bars on scroll
+        const riskSection = document.querySelector('.risk-factors');
+        const riskObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.risk-bar').forEach(bar => {
+                        const width = bar.style.width;
+                        bar.style.width = '0%';
+                        setTimeout(() => {
+                            bar.style.width = width;
+                        }, 100);
+                    });
+                    riskObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        if (riskSection) riskObserver.observe(riskSection);
+    </script>
+</body>
+</html>
